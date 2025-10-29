@@ -1,0 +1,36 @@
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+
+#define trig D1
+#define echo D2
+
+char auth[] = "AUTH_TOKEN";
+char ssid[] = "WIFI_SSID";
+char pass[] = "WIFI_PASS";
+
+BlynkTimer timer;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+  Blynk.begin(auth, ssid, pass);
+  timer.setInterval(1000L, sendSensor);
+}
+
+void sendSensor() {
+  digitalWrite(trig, LOW); delayMicroseconds(2);
+  digitalWrite(trig, HIGH); delayMicroseconds(10);
+  digitalWrite(trig, LOW);
+
+  long duration = pulseIn(echo, HIGH);
+  float distance = duration * 0.034 / 2;
+
+  Serial.println(distance);
+  Blynk.virtualWrite(V1, distance);
+}
+
+void loop() {
+  Blynk.run();
+  timer.run();
+}
