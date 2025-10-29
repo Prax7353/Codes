@@ -1,0 +1,34 @@
+#include <SoftwareSerial.h>
+SoftwareSerial mySerial(2, 3);
+
+void setup() {
+  mySerial.begin(115200);
+  Serial.begin(115200);
+  delay(100);
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    char cmd = Serial.read();
+    switch (cmd) {
+      case 's':
+        mySerial.println("AT+CMGF=1");                  // Set SMS text mode
+        delay(1000);
+        mySerial.println("AT+CMGS=\"+7338477268\"");    // Recipient number
+        delay(1000);
+        mySerial.println("Welcome to IoT Lab");         // Message
+        delay(100);
+        mySerial.write(26);                             // End message (Ctrl+Z)
+        break;
+
+      case 'i':
+        mySerial.println("AT+CNMI=2,2,0,0,0");          // Configure SMS receive
+        delay(1000);
+        break;
+    }
+  }
+
+  if (mySerial.available() > 0) {
+    Serial.write(mySerial.read());
+  }
+}
