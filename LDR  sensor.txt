@@ -1,0 +1,29 @@
+#define BLYNK_TEMPLATE_ID "YourTemplateID"
+#define BLYNK_TEMPLATE_NAME "YourProjectName"
+#define BLYNK_AUTH_TOKEN "YourAuthToken"
+
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+
+char ssid[] = "YourWiFiName";      // WiFi SSID
+char pass[] = "YourWiFiPassword";  // WiFi Password
+
+#define LDR_PIN A0  // LDR voltage divider to A0
+
+BlynkTimer timer;
+
+void sendSensor() {
+  int ldrValue = analogRead(LDR_PIN);
+  Blynk.virtualWrite(V0, ldrValue);  // Send to Blynk (V0 pin)
+}
+
+void setup() {
+  Serial.begin(115200);
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+  timer.setInterval(1000L, sendSensor);  // Send every 1 sec
+}
+
+void loop() {
+  Blynk.run();
+  timer.run();
+}
