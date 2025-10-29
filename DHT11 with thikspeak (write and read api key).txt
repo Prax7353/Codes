@@ -1,0 +1,70 @@
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ThingSpeak.h>
+
+const char* ssid = "Redmi A2";
+const char* pass = "praveen2005";
+WiFiClient client;
+
+unsigned long channel = 2671941;
+const char* readKey = "NOLZL9F18UYFETV6";
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, pass);
+  while (WiFi.status() != WL_CONNECTED) { delay(500); Serial.print("."); }
+  Serial.println("\nWiFi Connected!");
+  ThingSpeak.begin(client);
+}
+
+void loop() {
+  float temp = ThingSpeak.readFloatField(channel, 1, readKey);
+  float hum  = ThingSpeak.readFloatField(channel, 2, readKey);
+
+  if (ThingSpeak.getLastReadStatus() == 200) {
+    Serial.println("Temp: " + String(temp) + " °C | Hum: " + String(hum) + " %");
+  } else {
+    Serial.println("Read Error!");
+  }
+
+  delay(15000);
+}
+
+
+
+
+
+(for read api key)
+
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ThingSpeak.h>
+
+const char* ssid = "Redmi A2";
+const char* pass = "praveen2005";
+WiFiClient client;
+
+unsigned long channel = 2671941;
+const char* readKey = "NOLZL9F18UYFETV6";
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, pass);
+  while (WiFi.status() != WL_CONNECTED) { delay(500); Serial.print("."); }
+  Serial.println("\nWiFi Connected!");
+  ThingSpeak.begin(client);
+}
+
+void loop() {
+  int status = ThingSpeak.readMultipleFields(channel, readKey);
+
+  if (status == 200) {
+    float temp = ThingSpeak.getFieldAsFloat(1);
+    float hum  = ThingSpeak.getFieldAsFloat(2);
+    Serial.println("Temp: " + String(temp) + " °C | Hum: " + String(hum) + " %");
+  } else {
+    Serial.println("Read Error!");
+  }
+
+  delay(15000);
+}
