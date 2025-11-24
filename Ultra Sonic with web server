@@ -1,0 +1,42 @@
+#include <ESP8266WiFi.h>
+
+const char* ssid = "Your_WiFi";
+const char* pass = "Your_Password";
+
+#define TRIG D5
+#define ECHO D6
+long duration;
+float distance, level;
+
+WiFiServer server(80);
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, pass);
+  server.begin();
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+}
+
+float getDistance() {
+  digitalWrite(TRIG, LOW); delayMicroseconds(2);
+  digitalWrite(TRIG, HIGH); delayMicroseconds(10);
+  digitalWrite(TRIG, LOW);
+  duration = pulseIn(ECHO, HIGH);
+  return duration * 0.034 / 2;  // cm
+}
+
+void loop() {
+  distance = getDistance();
+  level = 100 - (distance / 30 * 100);  // assuming tank height = 30cm
+
+  WiFiClient client = server.available();
+  if (client) {
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-Type: text/html\n");
+    client.print("<h2>Water Level: ");
+    client.print(level);
+    client.println("%</h2>");
+    delay(1000);
+  }
+}
