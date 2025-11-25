@@ -1,0 +1,48 @@
+#include "thingProperties.h"
+
+#define TRIG_PIN D5
+#define ECHO_PIN D6
+
+// Set your tank height in cm
+#define TANK_HEIGHT 100   
+
+float waterLevel;
+
+void setup() {
+  Serial.begin(9600);
+  delay(1500);
+
+  initProperties();
+  ArduinoCloud.begin(ArduinoIoTPreferredConnection);
+
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+}
+
+void loop() {
+  ArduinoCloud.update();
+
+  long duration;
+  float distance;
+
+  // Trigger the ultrasonic
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  duration = pulseIn(ECHO_PIN, HIGH);
+  distance = (duration * 0.034) / 2;   // cm
+
+  // Calculate water level
+  waterLevel = TANK_HEIGHT - distance;
+  if (waterLevel < 0) waterLevel = 0;   // no negative values
+
+  // Print on serial
+  Serial.print("Water Level: ");
+  Serial.print(waterLevel);
+  Serial.println(" cm");
+
+  delay(1000);
+}
