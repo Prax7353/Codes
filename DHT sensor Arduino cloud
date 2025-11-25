@@ -1,0 +1,32 @@
+#include "thingProperties.h"
+#include <DHT.h>
+
+#define DHTPIN D4
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
+
+float temperature;
+float humidity;
+
+void setup() {
+  Serial.begin(9600);
+  delay(1500);
+  initProperties();
+  ArduinoCloud.begin(ArduinoIoTPreferredConnection);
+
+  dht.begin();
+}
+
+void loop() {
+  ArduinoCloud.update();
+
+  temperature = dht.readTemperature();
+  humidity    = dht.readHumidity();
+
+  Serial.print("Temp: ");
+  Serial.print(temperature);
+  Serial.print(" °C  Humidity: ");
+  Serial.println(humidity);
+
+  delay(2000);
+}
