@@ -1,0 +1,31 @@
+#include "thingProperties.h"
+
+#define PIR_PIN D2
+
+bool motion = false;   // cloud variable
+
+void setup() {
+  Serial.begin(9600);
+  delay(1500);
+
+  initProperties();
+  ArduinoCloud.begin(ArduinoIoTPreferredConnection);
+
+  pinMode(PIR_PIN, INPUT);
+}
+
+void loop() {
+  ArduinoCloud.update();
+
+  int state = digitalRead(PIR_PIN);
+
+  if (state == HIGH) {
+    motion = true;
+    Serial.println("Motion Detected");
+  } else {
+    motion = false;
+    Serial.println("No Motion");
+  }
+
+  delay(500);
+}
