@@ -1,0 +1,76 @@
+#include <ESP8266WiFi.h>
+#include <ThingSpeak.h>
+#include <DHT.h>
+
+DHT dht(2, DHT11);  
+WiFiClient client;
+
+const char* ssid = "WiFi";
+const char* pass = "Password";
+
+unsigned long channelID = YOUR_CHANNEL_ID;
+const char* writeKey = "WRITE_KEY";
+
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+
+  WiFi.begin(ssid, pass);
+  while (WiFi.status() != WL_CONNECTED) delay(500);
+
+  ThingSpeak.begin(client);
+}
+
+void loop() {
+  float t = dht.readTemperature();
+  float h = dht.readHumidity();
+
+  ThingSpeak.setField(1, t);
+  ThingSpeak.setField(2, h);
+
+  int x = ThingSpeak.writeFields(channelID, writeKey);
+  Serial.println(x == 200 ? "OK" : "Error");
+
+  delay(20000);
+}
+
+
+
+
+
+
+
+#include <ESP8266WiFi.h>
+#include <ThingSpeak.h>
+
+WiFiClient client;
+
+const char* ssid = "WiFi";
+const char* pass = "Password";
+
+unsigned long channelID = YOUR_CHANNEL_ID;
+const char* readKey = "READ_KEY";
+
+void setup() {
+  Serial.begin(115200);
+
+  WiFi.begin(ssid, pass);
+  while (WiFi.status() != WL_CONNECTED) delay(500);
+
+  ThingSpeak.begin(client);
+}
+
+void loop() {
+  int status = ThingSpeak.readMultipleFields(channelID, readKey);
+
+  if (status == 200) {
+    Serial.print("T: ");
+    Serial.print(ThingSpeak.getFieldAsFloat(1));
+    Serial.print("  H: ");
+    Serial.println(ThingSpeak.getFieldAsFloat(2));
+  } else {
+    Serial.println("Error");
+  }
+
+  delay(15000);
+}
